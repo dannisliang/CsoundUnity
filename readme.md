@@ -1,0 +1,1 @@
+This is a simple Csound wrapper for Unity3d. it is based on Richard Henniger's Csound6net framework for developing .net applications with Csound. This work is licensed under the same terms and disclaimers as Csound. 
