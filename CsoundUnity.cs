@@ -26,27 +26,14 @@ public class CsoundUnity
 	public CsoundUnity(string csdFile)
 	{
 		manualReset = new ManualResetEvent(false);
-		Csound6.NativeMethods.csoundSetGlobalEnv("OPCODE6DIR64", "/Library/Frameworks/CsoundLib64.framework/Versions/6.0/Resources/Opcodes64");
-		Csound6.NativeMethods.csoundSetGlobalEnv("OPCODE6DIR", "/Library/Frameworks/CsoundLib64.framework/Versions/6.0/Resources/Opcodes64");
-		
 		performanceThread = new Thread(new ThreadStart(performCsound));
 		csound = Csound6.NativeMethods.csoundCreate(System.IntPtr.Zero);
 		Csound6.NativeMethods.csoundCreateMessageBuffer(csound, 0);
-		//Csound6.NativeMethods.csoundSetMessageCallback(csound, messageCallbackProxy);
 		string[] runargs = new string[] { "csound", csdFile };
-		int ret = Csound6.NativeMethods.csoundCompile(csound, 2, runargs);
-		
-		
+		int ret = Csound6.NativeMethods.csoundCompile(csound, 2, runargs);		
 		//Csound6.NativeMethods.csoundSetRTAudioModule(csound, "coreaudio");
 		performanceThread.Start();
 		manualReset.Reset();
-	}
-	
-	
-	private void messageCallbackProxy(IntPtr csound, Int32 attr, string format, IntPtr valist)
-	{
-		//Debug.Log(Csound6.NativeMethods.cvsprintf(format, valist));
-		Debug.Log(format);
 	}
 	
 	public void startPerformance()
@@ -89,7 +76,7 @@ public class CsoundUnity
 		Csound6.NativeMethods.csoundPopFirstMessage(csound);
 		return message;
 	}
-	
+
 	public static string getMessageText(IntPtr message) {
 		int len = 0;
 		while (Marshal.ReadByte(message, len) != 0) ++len;

@@ -47,10 +47,10 @@ namespace csoundcsharp
 
 	public partial class Csound6 {
 		
+		// You will need to comment/uncomment one of these depending on you OS.
+		internal const string _dllVersion ="csound64.dll";
+		//internal const string _dllVersion ="/Library/Frameworks/CsoundLib64.framework/CsoundLib64"; //change this to point to a different dll for csound functions: currently csound6RC2
 		
-		internal const string _dllVersion ="/Library/Frameworks/CsoundLib64.framework/CsoundLib64"; //change this to point to a different dll for csound functions: currently csound6RC2
-		//internal const string _dllVersion ="csound64.dll";
-		#region Csound Callback Delegates
 		[UnmanagedFunctionPointer(CallingConvention.Cdecl)]
 		internal delegate void MessageCallbackProxy(IntPtr csound, Int32 attr, string format, IntPtr valist);
 		
@@ -59,14 +59,9 @@ namespace csoundcsharp
 		
 		[UnmanagedFunctionPointer(CallingConvention.Cdecl)]
 		internal delegate void RtcloseCallbackProxy(IntPtr csound);
-		
-		#endregion Csound Callback Delegates
-		
-		#region NativeMethods   
-		
+
 		public class NativeMethods
 		{
-			#region InstantiationFunctions
 			[DllImport(_dllVersion, CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Ansi)]
 			internal static extern Int32 csoundInitialize([In] int flags);
 
@@ -81,76 +76,7 @@ namespace csoundcsharp
 
 			[DllImport(_dllVersion, CallingConvention = CallingConvention.Cdecl)]
 			internal static extern Int32 csoundGetAPIVersion();
-			
-			#endregion InstantiationFunctions
-			
-			#region PerformanceFunctions
-			internal const string _msvcrtVersion = "libc.dylib"; //should always match the current msvcrt version sent with csound
-
-			public static string cvsprintf(string format, IntPtr valist)
-			{
-				int size = NativeCMethods.vsnprintf(format, valist);//predict how big a buffer we will need to hold format and its arguments
-				StringBuilder text = new StringBuilder(size + 1);//needs padding: builders usually expand, but not when c-code fills them...
-				int cnt = NativeCMethods.vsprintf(text, text.Capacity, format, valist); //Convert to a string
-				return (cnt >= 0) ? text.ToString() : string.Empty; //and return (cnt < 0 means error: just return null string
-			}
-
-//			public static IntPtr cfopen(string name, string mode)
-//			{
-//				return NativeCMethods.fopen(name, mode);
-//			}
-//
-//			public static int cfclose(IntPtr pFILE)
-//			{
-//				return NativeCMethods.fclose(pFILE);
-//			}
-//			
-//			public static string cfgets(IntPtr pFILE, int maxchrs)
-//			{
-//				StringBuilder cBuffer = new StringBuilder(maxchrs);
-//				IntPtr pStr = NativeCMethods.fgets(cBuffer, maxchrs, pFILE);
-//				return ((pStr != null) && (pStr != IntPtr.Zero)) ? cBuffer.ToString() : null;
-//			}
-//
-//			public static string wGetShortPathName(string longname)
-//			{
-//				StringBuilder shortname = new StringBuilder(longname.Length);
-//				Int32 shortLength = NativeCMethods.GetShortPathName(longname, shortname, longname.Length);
-//				string result = shortname.ToString();
-//				return result;
-//			}
-//			
-			private class NativeCMethods
-			{
-			
-/*				[DllImport(_msvcrtVersion, CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Ansi, BestFitMapping = false, ThrowOnUnmappableChar = true)]
-				internal static extern IntPtr fopen([In, MarshalAs(UnmanagedType.LPStr)] string name, [In, MarshalAs(UnmanagedType.LPStr)] string mode);
-				
-				[DllImport(_msvcrtVersion, CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Ansi, BestFitMapping = false, ThrowOnUnmappableChar = true)]
-				internal static extern IntPtr fgets(StringBuilder str, Int32 maxchars, IntPtr pFile);
-				
-				
-				[DllImport(_msvcrtVersion, CallingConvention = CallingConvention.Cdecl)]
-				internal static extern Int32 fclose(IntPtr pFile);
-*/				
-
-				[DllImport(_msvcrtVersion, CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Ansi, BestFitMapping = false, ThrowOnUnmappableChar = true)]
-				internal static extern Int32 vsnprintf([In, MarshalAs(UnmanagedType.LPStr)] string format, IntPtr valist);
-				
-				[DllImport(_msvcrtVersion, CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Ansi, BestFitMapping = false, ThrowOnUnmappableChar = true)]
-				internal static extern Int32 vsprintf(StringBuilder str, int len, string format, IntPtr valist);
-/*	
-				[DllImport(_msvcrtVersion, CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Ansi, BestFitMapping = false, ThrowOnUnmappableChar = true)]
-				internal static extern Int32 _vscprintf([In, MarshalAs(UnmanagedType.LPStr)] string format, IntPtr valist);
-				
-				[DllImport(_msvcrtVersion, CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Ansi, BestFitMapping = false, ThrowOnUnmappableChar = true)]
-				internal static extern Int32 vsprintf_s(StringBuilder str, int len, string format, IntPtr valist);
-				
-				[DllImport("Kernel32.dll", CharSet = CharSet.Ansi, BestFitMapping = false, ThrowOnUnmappableChar = true)]
-				internal static extern Int32 GetShortPathName([In, MarshalAs(UnmanagedType.LPStr)] string longname, [MarshalAs(UnmanagedType.LPStr)] StringBuilder shortname, [In] Int32 length);
-*/
-						};
-			
+						
 			[DllImport(_dllVersion, CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Ansi, BestFitMapping = false, ThrowOnUnmappableChar = true)]
 			internal static extern IntPtr csoundParseOrc([In] IntPtr csound, [In] String str);
 			
@@ -198,10 +124,7 @@ namespace csoundcsharp
 
 			[DllImport(_dllVersion, CallingConvention = CallingConvention.Cdecl)]
 			internal static extern void csoundReset([In] IntPtr csound);
-			
-			#endregion PerformanceFunctions
-			
-			#region Attributes
+
 			[DllImport(_dllVersion, CallingConvention = CallingConvention.Cdecl)]
 			internal static extern Double csoundGetSr([In] IntPtr csound);
 			
@@ -237,10 +160,7 @@ namespace csoundcsharp
 
 			[DllImport(_dllVersion, CallingConvention = CallingConvention.Cdecl)]
 			internal static extern void csoundSetDebug([In] IntPtr csound, [In] Int32 debug);
-			
-			#endregion Attributes
-			
-			#region GeneralIO
+
 			[DllImport(_dllVersion, CallingConvention = CallingConvention.Cdecl)]
 			internal static extern IntPtr csoundGetOutputName([In] IntPtr csound);
 			
@@ -258,11 +178,7 @@ namespace csoundcsharp
 			
 			[DllImport(_dllVersion, CallingConvention = CallingConvention.Cdecl)]
 			internal static extern void csoundSetFileOpenCallback([In] IntPtr csound, FileOpenCallbackProxy processMessage);
-			
-			
-			#endregion GeneralIO
-			
-			#region RealTimeAudio
+
 			[DllImport(_dllVersion, CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Ansi, BestFitMapping = false, ThrowOnUnmappableChar = true)]
 			internal static extern void csoundSetRTAudioModule([In] IntPtr csound, [In, MarshalAs(UnmanagedType.LPStr)] string module);
 			
@@ -277,22 +193,13 @@ namespace csoundcsharp
 			
 			[DllImport(_dllVersion, CallingConvention = CallingConvention.Cdecl)]
 			internal static extern Int32 csoundGetOutputBufferSize([In] IntPtr csound);
-			
-			#endregion RealTimeAudio
-			
-			#region RealTimeMidi
-			
+
 			[DllImport(_dllVersion, CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Ansi, BestFitMapping = false, ThrowOnUnmappableChar = true)]
 			internal static extern void csoundSetMIDIModule([In] IntPtr csound, [In, MarshalAs(UnmanagedType.LPStr)] string module);
 			
 			[DllImport(_dllVersion, CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Ansi)]
 			internal static extern Int32 csoundGetMIDIDevList([In] IntPtr csound, [Out] IntPtr list, [In] Int32 isOutput);
-			
-			//also in RealTimeCsound6Net
-			#endregion RealTimeMidi
-			
-			#region ScoreHandling
-			
+
 			[DllImport(_dllVersion, CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Ansi, BestFitMapping = false, ThrowOnUnmappableChar = true)]
 			internal static extern Int32 csoundReadScore([In] IntPtr csound, [In, MarshalAs(UnmanagedType.LPStr)] string score);
 
@@ -319,10 +226,7 @@ namespace csoundcsharp
 
 			[DllImport(_dllVersion, CallingConvention = CallingConvention.Cdecl)]
 			internal static extern int csoundScoreExtract(IntPtr csound, IntPtr inFile, IntPtr outFile, IntPtr extractFile);
-			
-			#endregion ScoreHandling
-			
-			#region MessageSupport
+
 			[DllImport(_dllVersion, CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Ansi)]
 			internal static extern void csoundSetDefaultMessageCallback(MessageCallbackProxy processMessage);
 			
@@ -352,18 +256,7 @@ namespace csoundcsharp
 			
 			[DllImport(_dllVersion, CallingConvention = CallingConvention.Cdecl)]
 			internal static extern int csoundGetMessageCnt([In] IntPtr csound);	
-			
-			
-			
-			#endregion MessageSupport
-			
-			#region ChannelsControlEvents
-			
-			//RealTimeCsound6Net
-			#endregion ChannelsControlEvents
-			
-			#region opcodes
-			
+
 			[DllImport(_dllVersion, CallingConvention = CallingConvention.Cdecl)]
 			internal static extern IntPtr csoundGetNamedGens([In] IntPtr csound);
 			
@@ -372,18 +265,12 @@ namespace csoundcsharp
 			
 			[DllImport(_dllVersion, CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Ansi)]
 			internal static extern void csoundDisposeOpcodeList([In] IntPtr csound, [In] IntPtr ppOpcodeList);
-			
-			#endregion opcodes
-			
-			#region MiscellaneousFunctions
 
 			[DllImport(_dllVersion, CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Ansi, BestFitMapping = false, ThrowOnUnmappableChar = true)]
 			internal static extern IntPtr csoundGetEnv([In] IntPtr csound, [In, MarshalAs(UnmanagedType.LPStr)] String key);
-			
 
 			[DllImport(_dllVersion, CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Ansi, BestFitMapping = false, ThrowOnUnmappableChar = true)]
 			internal static extern Int32 csoundSetGlobalEnv([In, MarshalAs(UnmanagedType.LPStr)] string name, [In, MarshalAs(UnmanagedType.LPStr)] string value);
-			
 
 			[DllImport(_dllVersion, CallingConvention = CallingConvention.Cdecl)]
 			internal static extern UInt32 csoundGetRandomSeedFromTime();
@@ -399,63 +286,8 @@ namespace csoundcsharp
 			
 			[DllImport(_dllVersion, CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Ansi)]
 			internal static extern void csoundDeleteUtilityList([In] IntPtr csound, IntPtr list);
-			
-			
-			#endregion MiscellaneousFunctions
-		}
-		#endregion NativeMethods
-		
-		[StructLayout(LayoutKind.Sequential, CharSet = CharSet.Ansi)]
-		private class namedGenProxy
-		{
-			public IntPtr name;
-			public int genum;
-			public IntPtr next; //NAMEDGEN pointer used by csound as linked list, but not sure if we care
-		}
-		
-		[StructLayout(LayoutKind.Sequential)]
-		private class opcodeListProxy
-		{
-			public IntPtr opname;
-			public IntPtr outtypes;
-			public IntPtr intypes;
-		}
-		
-		
-		
-		
-		#region pInvokeSupport
-		protected IntPtr Object2ProtectedPointer(object data)
-		{
-			IntPtr pgcData = IntPtr.Zero;
-			if (data != null)
-			{
-				GCHandle gcData = GCHandle.Alloc(data);
-				pgcData = GCHandle.ToIntPtr(gcData);
-			}
-			return pgcData;
-		}
-		
-		protected object ProtectedPointer2Object(IntPtr pgcData)
-		{
-			object data = null;
-			if ((pgcData != null) && (pgcData != IntPtr.Zero))
-			{
-				GCHandle gcData = GCHandle.FromIntPtr(pgcData);
-				data = gcData.Target;
-			}
-			return data;
 		}
 
-		protected void ReleaseProtectedPointer(IntPtr pgcData)
-		{
-			if ((pgcData != null) && (pgcData != IntPtr.Zero))
-			{
-				GCHandle gcData = GCHandle.FromIntPtr(pgcData);
-				gcData.Free();
-			}
-		}
-		#endregion pInvokeSupport
 	}
 }
 
