@@ -3,6 +3,7 @@ using System.Collections.Generic;
 
 using System.Text;
 using System.Threading;
+using System.Runtime.InteropServices;
 using UnityEngine;
 using csoundcsharp;
 
@@ -19,19 +20,24 @@ using csoundcsharp;
 public class CsoundUnity
 {
 	public IntPtr csound;
-	private volatile bool threadStatus;
 	Thread performanceThread;
 	ManualResetEvent manualReset;
 	
 	public CsoundUnity(string csdFile)
 	{
 		manualReset = new ManualResetEvent(false);
+		Csound6.NativeMethods.csoundSetGlobalEnv("OPCODE6DIR64", "/Library/Frameworks/CsoundLib64.framework/Versions/6.0/Resources/Opcodes64");
+		Csound6.NativeMethods.csoundSetGlobalEnv("OPCODE6DIR", "/Library/Frameworks/CsoundLib64.framework/Versions/6.0/Resources/Opcodes64");
+		
 		performanceThread = new Thread(new ThreadStart(performCsound));
 		csound = Csound6.NativeMethods.csoundCreate(System.IntPtr.Zero);
-		Csound6.NativeMethods.csoundSetMessageCallback(csound, messageCallbackProxy);
+		Csound6.NativeMethods.csoundCreateMessageBuffer(csound, 0);
+		//Csound6.NativeMethods.csoundSetMessageCallback(csound, messageCallbackProxy);
 		string[] runargs = new string[] { "csound", csdFile };
 		int ret = Csound6.NativeMethods.csoundCompile(csound, 2, runargs);
-		//Csound6Net.NativeMethods.csoundSetRTAudioModule(csound, "mme");
+		
+		
+		//Csound6.NativeMethods.csoundSetRTAudioModule(csound, "coreaudio");
 		performanceThread.Start();
 		manualReset.Reset();
 	}
@@ -39,7 +45,8 @@ public class CsoundUnity
 	
 	private void messageCallbackProxy(IntPtr csound, Int32 attr, string format, IntPtr valist)
 	{
-		Debug.Log(Csound6.NativeMethods.cvsprintf(format, valist));
+		//Debug.Log(Csound6.NativeMethods.cvsprintf(format, valist));
+		Debug.Log(format);
 	}
 	
 	public void startPerformance()
@@ -70,6 +77,27 @@ public class CsoundUnity
 	{
 		Csound6.NativeMethods.csoundSetControlChannel(csound, channel, value);
 	}
+	
+	public int getCsoundMessageCount()
+	{
+		return Csound6.NativeMethods.csoundGetMessageCnt(csound);
+	}
+	
+	public string getCsoundMessage()
+	{
+		string message = getMessageText(Csound6.NativeMethods.csoundGetFirstMessage(csound));
+		Csound6.NativeMethods.csoundPopFirstMessage(csound);
+		return message;
+	}
+	
+	public static string getMessageText(IntPtr message) {
+		int len = 0;
+		while (Marshal.ReadByte(message, len) != 0) ++len;
+		byte[] buffer = new byte[len];
+		Marshal.Copy(message, buffer, 0, buffer.Length);
+		return Encoding.UTF8.GetString(buffer);
+	}
+	
 }
 
 
