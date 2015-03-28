@@ -102,7 +102,7 @@ namespace csoundcsharp
 			internal static extern IntPtr csoundInputMessage([In] IntPtr csound, [In] String str);
 			
 			[DllImport(_dllVersion, CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Ansi, BestFitMapping = false, ThrowOnUnmappableChar = true)]
-			internal static extern IntPtr csoundSetControlChannel([In] IntPtr csound, [In] String str, float value);            
+			internal static extern IntPtr csoundSetControlChannel([In] IntPtr csound, [In] String str, [In] double value);            
 			
 			[DllImport(_dllVersion, CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Ansi)]
 			internal static extern Int32 csoundCompile([In] IntPtr csound, [In] Int32 argc, [In] string[] argv);

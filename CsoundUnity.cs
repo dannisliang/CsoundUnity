@@ -46,7 +46,7 @@ public class CsoundUnity
 		manualReset.Reset();
 	}
 	
-	public void performCsound()
+	private void performCsound()
 	{
 		while (true)
 		{
@@ -55,7 +55,7 @@ public class CsoundUnity
 		}
 	}
 	
-	public void inputMessage(string scoreEvent)
+	public void sendScoreEvent(string scoreEvent)
 	{
 		Csound6.NativeMethods.csoundInputMessage(csound, scoreEvent);
 	}
