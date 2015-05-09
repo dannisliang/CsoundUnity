@@ -9,7 +9,7 @@ using System.ComponentModel;
  * C S O U N D for C#
  * Simple wrapper building C# hosts for Csound 6 via the Csound API
  * and is licensed under the same terms and disclaimers as Csound described below.
- * Copyright (C) 2013 Richard Henninger, Rory Walsh
+ * Copyright (C) 2013 Richard Henninger
  *
  * C S O U N D
  *
@@ -43,12 +43,11 @@ namespace csoundcsharp
 	// http://csound6net.codeplex.com
 
 	// This lightweight wrapper was created to provide an interface to the Unity3d game engine
+	public partial class Csound6 
+	{
 
-
-	public partial class Csound6 {
-		
 		// You will need to comment/uncomment one of these depending on you OS.
-		internal const string _dllVersion ="csound64.dll";
+		internal const string _dllVersion = "csound64.dll";
 		//internal const string _dllVersion ="/Library/Frameworks/CsoundLib64.framework/CsoundLib64"; //change this to point to a different dll for csound functions: currently csound6RC2
 		
 		[UnmanagedFunctionPointer(CallingConvention.Cdecl)]
@@ -62,6 +61,10 @@ namespace csoundcsharp
 
 		public class NativeMethods
 		{
+
+			[DllImport("kernel32.dll", CharSet = CharSet.Auto, SetLastError = true)]
+			internal static extern bool SetDllDirectory(string lpPathName);
+
 			[DllImport(_dllVersion, CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Ansi)]
 			internal static extern Int32 csoundInitialize([In] int flags);
 
@@ -103,7 +106,18 @@ namespace csoundcsharp
 			
 			[DllImport(_dllVersion, CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Ansi, BestFitMapping = false, ThrowOnUnmappableChar = true)]
 			internal static extern IntPtr csoundSetControlChannel([In] IntPtr csound, [In] String str, [In] double value);            
-			
+
+			[DllImport(_dllVersion, CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Ansi, BestFitMapping = false, ThrowOnUnmappableChar = true)]
+			internal static extern IntPtr csoundSetStringChannel([In] IntPtr csound, [In] String str, [In] String value);
+
+			[DllImport(_dllVersion, CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Ansi, BestFitMapping = false, ThrowOnUnmappableChar = true)]
+			internal static extern Double csoundGetControlChannel([In] IntPtr csound, [In] String str, [In] IntPtr err);           
+
+
+			[DllImport(_dllVersion, CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Ansi)]
+			internal static extern Double csoundTableGet([In] IntPtr csound, [In] Int32 table, [In] Int32 index);
+			//csoundTableGet (CSOUND *, int table, int index)
+
 			[DllImport(_dllVersion, CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Ansi)]
 			internal static extern Int32 csoundCompile([In] IntPtr csound, [In] Int32 argc, [In] string[] argv);
 

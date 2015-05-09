@@ -1,91 +1,109 @@
-using System;
-using System.Collections.Generic;
-
-using System.Text;
-using System.Threading;
-using System.Runtime.InteropServices;
-using UnityEngine;
-using csoundcsharp;
+﻿using UnityEngine;
+using System.Collections;
 
 /* 
- * C S O U N D  for  U N I T Y 3 D
+ * C S O U N D ____ U N I T Y 
  * 
- * Simple Csound wrapper for Unity 3d. 
+ * Simple Csound bridge for Unity 3d. 
  * This file is licensed under the same terms and disclaimers 
  * as Csound.
  * 
  * Copyright (C) 2015 Rory Walsh
-*/ 
+ * 
+ * This script provides some simple utility functions to start and control
+ * an instance of Csound in Unity file. If you need more Csound API functions 
+ * you should look at the CsoundUnityBridge.cs file.
+*/
 
-public class CsoundUnity
-{
-	public IntPtr csound;
-	Thread performanceThread;
-	ManualResetEvent manualReset;
-	
-	public CsoundUnity(string csdFile)
+public class CsoundUnity : MonoBehaviour {
+
+	// Use this for initialization
+	public CsoundUnityBridge csound;
+	public string csoundFile;
+
+	void Start () 
 	{
-		manualReset = new ManualResetEvent(false);
-		performanceThread = new Thread(new ThreadStart(performCsound));
-		csound = Csound6.NativeMethods.csoundCreate(System.IntPtr.Zero);
-		Csound6.NativeMethods.csoundCreateMessageBuffer(csound, 0);
-		string[] runargs = new string[] { "csound", csdFile };
-		int ret = Csound6.NativeMethods.csoundCompile(csound, 2, runargs);		
-		//Csound6.NativeMethods.csoundSetRTAudioModule(csound, "coreaudio");
-		performanceThread.Start();
-		manualReset.Reset();
+		 
+		 /* I M P O R T A N T
+		 * 
+		 * Please ensure that all csd files reside in your Assets/Scripts directory
+		 *
+		 */
+
+		string csoundFilePath = Application.streamingAssetsPath+"/"+csoundFile+"_";
+		/*
+		 * the CsoundUnity constructor takes a path to the Csound Plugin Opcodes directory.
+		 * After this has been set we call createCsound(string csdFile) to create an instance of
+		 * Csound and compile the 'csdFile'. After this we start the performance of Csound. 
+		 */
+		System.Environment.SetEnvironmentVariable("Path", Application.streamingAssetsPath);
+		string opcodeDirPath = Application.streamingAssetsPath;
+		csound = new CsoundUnityBridge(opcodeDirPath);
+		csound.createCsound(csoundFilePath);
+		csound.startPerformance();
+		csound.setStringChannel("baseDir", opcodeDirPath);
+
+		/*
+		 * This method prints the Csound output to the Unity console
+		 */
+		InvokeRepeating("logCsoundMessages", 0, 1f);	
+
 	}
-	
-	public void startPerformance()
+
+	void Update () 
 	{
-		manualReset.Set();       
+		//we don't need to do anything in here...
 	}
-	
-	public void stopPerformance()
+
+
+	/*
+	 * Called when the game stops. Needed so that Csound stops when 
+	 * your game does 
+	 */ 
+	void OnApplicationQuit()
 	{
-		manualReset.Reset();
+		csound.stopPerformance();
 	}
-	
-	private void performCsound()
+
+
+	/*
+	 * Sets a Csound channel. Used in connection with a chnget opcode
+	 * in your Csound instrument.
+	 */ 
+	public void setChannel(string channel, float val)
 	{
-		while (true)
-		{
-			manualReset.WaitOne();
-			Csound6.NativeMethods.csoundPerformKsmps(csound);
-		}
+		csound.setChannel(channel, val);
 	}
-	
+
+	public void setStringChannel(string channel, string val)
+	{
+		csound.setStringChannel(channel, val);
+	}
+	/*
+	 * Gets a Csound channel. Used in connection with a chnset opcode
+	 * in your Csound instrument.
+	 */ 
+	public double getChannel(string channel)
+	{
+		return csound.getChannel(channel);
+	}
+
+	/*
+	 * Send a score event to Csound in the form of "i1 0 10 ...."
+	 */
 	public void sendScoreEvent(string scoreEvent)
 	{
-		Csound6.NativeMethods.csoundInputMessage(csound, scoreEvent);
-	}
-	
-	public void setChannel(string channel, float value)
-	{
-		Csound6.NativeMethods.csoundSetControlChannel(csound, channel, value);
-	}
-	
-	public int getCsoundMessageCount()
-	{
-		return Csound6.NativeMethods.csoundGetMessageCnt(csound);
-	}
-	
-	public string getCsoundMessage()
-	{
-		string message = getMessageText(Csound6.NativeMethods.csoundGetFirstMessage(csound));
-		Csound6.NativeMethods.csoundPopFirstMessage(csound);
-		return message;
+		csound.sendScoreEvent(scoreEvent);
 	}
 
-	public static string getMessageText(IntPtr message) {
-		int len = 0;
-		while (Marshal.ReadByte(message, len) != 0) ++len;
-		byte[] buffer = new byte[len];
-		Marshal.Copy(message, buffer, 0, buffer.Length);
-		return Encoding.UTF8.GetString(buffer);
+
+	/*
+	 * Print the Csound output to the Unity message console
+	 */
+	void logCsoundMessages()
+	{
+		//print Csound message to Unity console....
+		for(int i=0;i<csound.getCsoundMessageCount();i++)
+			Debug.Log(csound.getCsoundMessage());
 	}
-	
 }
-
-
-
