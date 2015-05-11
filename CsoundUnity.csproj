@@ -38,7 +38,7 @@
   <ItemGroup>
     <Compile Include="AssemblyInfo.cs" />
     <Compile Include="csoundcsharp.cs" />
-    <Compile Include="CsoundUnity.cs" />
+    <Compile Include="CsoundUnityBridge.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
 </Project>
